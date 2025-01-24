@@ -10,7 +10,7 @@ This Python script provides an interactive tool for analyzing GitHub repositorie
 - Multiple file and code search capabilities
 
 ## Prerequisites
-- Python 3.8+
+- Python 
 - Composio API Key
 - OpenAI API Key
 - Required Python libraries:
