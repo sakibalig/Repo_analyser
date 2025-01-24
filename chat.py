@@ -20,19 +20,16 @@ def clone_repository(owner: str, repo: str) -> str:
         str: The path to the cloned repository.
     """
     try:
-        # Initialize the Composio toolset
         composio_toolset = ComposioToolSet(api_key=COMPOSIO_API_KEY)
 
-        # Execute the git clone action
         composio_toolset.execute_action(
             action=Action.FILETOOL_GIT_CLONE,
             params={"repo_name": f"{owner}/{repo}"}
         )
 
-        # Define the cloned directory path
         current_dir = os.path.join(os.getcwd(), repo)
 
-        # Verify that the repository was cloned successfully
+
         if not os.path.isdir(current_dir):
             print(f"Error: Cloned directory {current_dir} does not exist.")
             sys.exit(1)
