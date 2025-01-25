@@ -4,23 +4,49 @@ import composio_autogen
 import autogen
 import composio
 import json
+import json
 from composio_autogen import ComposioToolSet, App, Action
-COMPOSIO_API_KEY = os.getenv("COMPOSIO_API_KEY", "")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+
+# ANSI Color Codes
+class TerminalColors:
+    HEADER = '\033[95m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+def clear_screen():
+    """Clear terminal screen"""
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def print_banner():
+    """Print a decorative banner"""
+    banner = f"""{TerminalColors.HEADER}
+╔═══════════════════════════════════════════╗
+║       Repository Analysis Tool            ║
+╚═══════════════════════════════════════════╝
+{TerminalColors.ENDC}"""
+    print(banner)
+
+def stylized_input(prompt):
+    """Stylized input with color"""
+    return input(f"{TerminalColors.BLUE}➜ {prompt}{TerminalColors.ENDC}")
+
+def stylized_print(message, color=TerminalColors.GREEN):
+    """Print messages with style"""
+    print(f"{color}{message}{TerminalColors.ENDC}")
 
 def clone_repository(owner: str, repo: str) -> str:
     """
     Clones the specified GitHub repository into the current working directory.
-
-    Args:
-        owner (str): The GitHub username or organization name.
-        repo (str): The repository name.
-
-    Returns:
-        str: The path to the cloned repository.
     """
     try:
-        composio_toolset = ComposioToolSet(api_key=COMPOSIO_API_KEY)
+        stylized_print(f"🔍 Cloning repository: {owner}/{repo}")
+        
+        composio_toolset = ComposioToolSet(api_key=os.getenv("COMPOSIO_API_KEY", ""))
 
         composio_toolset.execute_action(
             action=Action.FILETOOL_GIT_CLONE,
@@ -29,24 +55,27 @@ def clone_repository(owner: str, repo: str) -> str:
 
         current_dir = os.path.join(os.getcwd(), repo)
 
-
+        # Verify that the repository was cloned successfully
         if not os.path.isdir(current_dir):
-            print(f"Error: Cloned directory {current_dir} does not exist.")
+            stylized_print(f"❌ Error: Cloned directory {current_dir} does not exist.", TerminalColors.FAIL)
             sys.exit(1)
 
-        print(f"Repository '{owner}/{repo}' cloned successfully to {current_dir}")
+        stylized_print(f"✅ Repository '{owner}/{repo}' cloned successfully to {current_dir}")
         return current_dir
     except Exception as e:
-        print("An error occurred during repository cloning may be the reason you did not entered the owner and repo correctly:")
+        stylized_print(f"❌ An error occurred during repository cloning: {e}", TerminalColors.FAIL)
         sys.exit(1)
 
-owner = input("Enter the name of the owner of the repo: ").strip()
-repo = input("Enter the name of the repository: ").strip()
+# Rest of the original script remains the same...
+clear_screen()
+print_banner()
+
+owner = stylized_input("Enter the name of the owner of the repo: ").strip()
+repo = stylized_input("Enter the name of the repository: ").strip()
+
 if not owner or not repo:
-            print("Error: Owner and repository names must be provided.")
-            sys.exit(1)
-
-
+    stylized_print("Error: Owner and repository names must be provided.", TerminalColors.FAIL)
+    sys.exit(1)
 
 repo_dir = clone_repository(owner, repo)
 
@@ -69,7 +98,6 @@ llm_config = {
         }
     ],
 }
-
 
 composio.ComposioToolSet().execute_action(
     action=composio.Action.CODE_ANALYSIS_TOOL_CREATE_CODE_MAP,
@@ -126,11 +154,19 @@ def ask_in_chat(message, response):
         )
     return result
 
-
 toolset.register_tools(apps=[composio_autogen.App.CODE_ANALYSIS_TOOL], caller=chatbot, executor=user_proxy)
-toolset.register_tools(actions=[composio_autogen.Action.FILETOOL_CHANGE_WORKING_DIRECTORY, composio_autogen.Action.FILETOOL_OPEN_FILE, composio_autogen.Action.FILETOOL_SCROLL,
-                       composio_autogen.Action.FILETOOL_EDIT_FILE, composio_autogen.Action.FILETOOL_SEARCH_WORD, composio_autogen.Action.FILETOOL_SEARCH_WORD, composio_autogen.Action.FILETOOL_FIND_FILE, composio_autogen.Action.FILETOOL_WRITE, composio_autogen.Action.FILETOOL_CREATE_FILE, composio_autogen.Action.FILETOOL_RENAME_FILE, composio_autogen.Action.FILETOOL_LIST_FILES], caller=chatbot, executor=user_proxy)
-
+toolset.register_tools(actions=[
+    composio_autogen.Action.FILETOOL_CHANGE_WORKING_DIRECTORY,
+    composio_autogen.Action.FILETOOL_OPEN_FILE,
+    composio_autogen.Action.FILETOOL_SCROLL,
+    composio_autogen.Action.FILETOOL_EDIT_FILE,
+    composio_autogen.Action.FILETOOL_SEARCH_WORD,
+    composio_autogen.Action.FILETOOL_FIND_FILE,
+    composio_autogen.Action.FILETOOL_WRITE,
+    composio_autogen.Action.FILETOOL_CREATE_FILE,
+    composio_autogen.Action.FILETOOL_RENAME_FILE,
+    composio_autogen.Action.FILETOOL_LIST_FILES
+], caller=chatbot, executor=user_proxy)
 
 prompt = """
 You are the Repository Analyser, a highly intelligent agent specialized in navigating and understanding repositories. Your primary responsibilities include:
@@ -165,6 +201,10 @@ with autogen.Cache.disk(cache_path_root=f"{os.getcwd()}+/cache") as cache:
     response = user_proxy.initiate_chat(chatbot, message=question, cache=cache)
 
 question = input("Enter the question or if you want to leave type exit : ")
-while question != "exit":
+while question.lower() != "exit":
+    if(question == "file"):
+        with open("input.txt", "r") as file:
+            question = file.read()
     response = ask_in_chat(question, response)
-    question = input("Enter the question: ")
+    question = input("if you want to give input throught the file input.txt  type file else enter the question in the terminal:")
+    # question = input("Enter the question: ")
