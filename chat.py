@@ -66,7 +66,6 @@ def clone_repository(owner: str, repo: str) -> str:
         stylized_print(f"❌ An error occurred during repository cloning: {e}", TerminalColors.FAIL)
         sys.exit(1)
 
-# Rest of the original script remains the same...
 clear_screen()
 print_banner()
 
