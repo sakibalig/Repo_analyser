@@ -3,62 +3,25 @@ import composio_autogen
 import autogen
 import composio
 import json
-# import sys
-# import os
+import subprocess
 
-# def clear_screen():
-#     """Clear terminal screen"""
-#     os.system('cls' if os.name == 'nt' else 'clear')
+COMPOSIO_API_KEY = os.getenv("COMPOSIO_API_KEY", "")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+GITHUB_ACCESS_TOKEN = os.getenv("GITHUB_ACCESS_TOKEN", "")
 
-# def print_banner():
-#     """Print a decorative banner"""
-#     banner = """
+clone_dir = "/Users/sakibkhan/Desktop/Assignments/Drizz33/chatapp"
 
-# """
-#     print(banner)
+GITHUB_USERNAME = input("Enter the name of the owner of the repo: ").strip()
+REPO_NAME = input("Enter the name of the repository: ").strip()
 
-# def stylized_input(prompt):
-#     """Standard input without styling"""
-#     return input(f"➜ {prompt}")
+repository_url = f"https://{GITHUB_ACCESS_TOKEN}@github.com/{GITHUB_USERNAME}/{REPO_NAME}.git"
 
-# def stylized_print(message, success=True):
-#     """Standard print without styling"""
-#     if success:
-#         print(message)
-#     else:
-#         print(f"Error: {message}")
+if not os.path.exists(clone_dir):
+    os.makedirs(clone_dir)
+subprocess.run(["git", "clone", repository_url, clone_dir], check=True)
 
-# def clone_repository(owner: str, repo: str) -> str:
-#     """
-#     Clones the specified GitHub repository into the current working directory.
-#     """
-#     try:
-#         stylized_print(f" Cloning repository: {owner}/{repo}")
-        
-#         composio_toolset = ComposioToolSet(api_key=os.getenv("COMPOSIO_API_KEY", ""))
-
-#         composio_toolset.execute_action(
-#             action=Action.FILETOOL_GIT_CLONE,
-#             params={"repo_name": f"{owner}/{repo}"}
-#         )
-
-#         current_dir = os.path.join(os.getcwd(), repo)
-
-#         # Verify that the repository was cloned successfully
-#         if not os.path.isdir(current_dir):
-#             stylized_print(f"Cloned directory {current_dir} does not exist.", success=False)
-#             sys.exit(1)
-
-#         stylized_print(f" Repository '{owner}/{repo}' cloned successfully to {current_dir}")
-#         return current_dir
-#     except Exception as e:
-#         stylized_print(f"An error occurred during repository cloning: {e}", success=False)
-#         sys.exit(1)
-
-# clear_screen()
-# print_banner()
-
-repo_dir = "/Users/sakibkhan/Desktop/Assignments/Drizz33/pub-sub"
+# Set the repo_dir to the cloned repository directory
+repo_dir = clone_dir
 
 toolset = composio_autogen.ComposioToolSet(
     metadata={
