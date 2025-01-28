@@ -9,7 +9,7 @@ COMPOSIO_API_KEY = os.getenv("COMPOSIO_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 GITHUB_ACCESS_TOKEN = os.getenv("GITHUB_ACCESS_TOKEN", "")
 
-clone_dir = "/Users/sakibkhan/Desktop/Assignments/Drizz33/chatapp"
+clone_dir = "make a directory where you will clone this repository"
 
 GITHUB_USERNAME = input("Enter the name of the owner of the repo: ").strip()
 REPO_NAME = input("Enter the name of the repository: ").strip()
