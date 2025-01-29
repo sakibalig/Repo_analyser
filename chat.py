@@ -147,7 +147,6 @@ with autogen.Cache.disk(cache_path_root=f"{os.getcwd()}+/cache") as cache:
 
 question = input("Enter the question: ")
 
-question = input("Enter the question: ")
 while question.lower() != "exit":
     if question.lower() == "file":
         with open("input.txt", "r") as file:
