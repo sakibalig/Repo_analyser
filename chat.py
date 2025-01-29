@@ -3,25 +3,21 @@ import composio_autogen
 import autogen
 import composio
 import json
-import subprocess
+import sys
+
 
 COMPOSIO_API_KEY = os.getenv("COMPOSIO_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 GITHUB_ACCESS_TOKEN = os.getenv("GITHUB_ACCESS_TOKEN", "")
 
-clone_dir = "make a directory where you will clone this repository"
 
-GITHUB_USERNAME = input("Enter the name of the owner of the repo: ").strip()
-REPO_NAME = input("Enter the name of the repository: ").strip()
+repo_dir = input("Enter the directory path: ")
 
-repository_url = f"https://{GITHUB_ACCESS_TOKEN}@github.com/{GITHUB_USERNAME}/{REPO_NAME}.git"
+if not os.path.exists(repo_dir):
+    print("Error: Directory does not exist.")
+    sys.exit(1)
 
-if not os.path.exists(clone_dir):
-    os.makedirs(clone_dir)
-subprocess.run(["git", "clone", repository_url, clone_dir], check=True)
-
-# Set the repo_dir to the cloned repository directory
-repo_dir = clone_dir
+print("Directory exists.")
 
 toolset = composio_autogen.ComposioToolSet(
     metadata={
@@ -147,6 +143,7 @@ with autogen.Cache.disk(cache_path_root=f"{os.getcwd()}+/cache") as cache:
 
 question = input("Enter the question: ")
 
+# question = input("Enter the question: ")
 while question.lower() != "exit":
     if question.lower() == "file":
         with open("input.txt", "r") as file:
