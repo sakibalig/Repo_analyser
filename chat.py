@@ -3,7 +3,6 @@ import composio_autogen
 import autogen
 import composio
 import json
-import sys
 
 
 COMPOSIO_API_KEY = os.getenv("COMPOSIO_API_KEY", "")
@@ -13,11 +12,11 @@ GITHUB_ACCESS_TOKEN = os.getenv("GITHUB_ACCESS_TOKEN", "")
 
 repo_dir = input("Enter the directory path: ")
 
-if not os.path.exists(repo_dir):
-    print("Error: Directory does not exist.")
-    sys.exit(1)
+# if not os.path.exists(repo_dir):
+#     print("Error: Directory does not exist.")
+#     sys.exit(1)
 
-print("Directory exists.")
+# print("Directory exists.")
 
 toolset = composio_autogen.ComposioToolSet(
     metadata={
@@ -62,13 +61,16 @@ user_proxy = autogen.UserProxyAgent(
 )
 
 my_speaker_select_prompt = """
-You will ask question to chatbot and check the answer if the answer is not satisfactory you can ask the question again. with the specific details of the question.
-Do not execute any code or code block. Just answer the questions
+You'll ask a question to the chatbot and check the answer. 
+If the answer isn't good enough, retry by adding specific details to improve the question.
+Retry at most 4 times. If still unsatisfied, return the best available response.
+Do not execute any code or code block. Just answer the questions.
 """
+
 groupchat = autogen.GroupChat(
     agents=[chatbot, user_proxy],
     messages=[],
-    max_round=1000,
+    max_round=20,
     select_speaker_prompt_template=my_speaker_select_prompt,
     speaker_selection_method="round_robin",
 )
